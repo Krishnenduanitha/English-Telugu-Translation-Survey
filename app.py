@@ -321,15 +321,13 @@ def load_questions():
         st.stop()
 
     required_columns = [
-        "Index",
-        "Mapped English Text",
-        "Telugu Text",
-        "IndicTrans2 English-to-Telugu",
-        "BhashaVerse English-to-Telugu",
-        "google English-to-Telugu",
-        "Clitic English Word",
-        "Audio Path"
-    ]
+    "Index",
+    "Mapped English Text",
+    "Telugu Text",
+    "google English-to-Telugu",
+    "Clitic English Word",
+    "Audio Path"
+]
 
     missing_columns = [
         col
@@ -454,8 +452,6 @@ def get_randomized_options(
     participant_name,
     sample_id,
     telugu_text,
-    indictrans2_translation,
-    bhashaverse_translation,
     google_translation
 ):
 
@@ -477,14 +473,6 @@ def get_randomized_options(
             "type": "Telugu Reference Translation"
         },
         {
-            "text": str(indictrans2_translation).strip(),
-            "type": "IndicTrans2"
-        },
-        {
-            "text": str(bhashaverse_translation).strip(),
-            "type": "BhashaVerse"
-        },
-        {
             "text": str(google_translation).strip(),
             "type": "Google Translation"
         },
@@ -497,8 +485,6 @@ def get_randomized_options(
     rng.shuffle(options)
 
     return options
-
-
 # ============================================================
 # LOAD PARTICIPANT PROGRESS
 # ============================================================
@@ -1574,14 +1560,6 @@ elif st.session_state.page == "experiment":
         row["Telugu Text"]
     ).strip()
 
-    indictrans2_translation = str(
-        row["IndicTrans2 English-to-Telugu"]
-    ).strip()
-
-    bhashaverse_translation = str(
-        row["BhashaVerse English-to-Telugu"]
-    ).strip()
-
     google_translation = str(
         row["google English-to-Telugu"]
     ).strip()
@@ -1778,8 +1756,8 @@ elif st.session_state.page == "experiment":
     )
 
     st.write(
-        "Four Telugu versions are shown below. Select the "
-        "version that best matches the intended meaning and "
+        "Three options are shown below. Select the "
+        "option that best matches the intended meaning and "
         "prosodic interpretation."
     )
 
@@ -1791,18 +1769,6 @@ elif st.session_state.page == "experiment":
     if not telugu_text:
         st.error(
             "Telugu reference translation is missing for this question."
-        )
-        st.stop()
-
-    if not indictrans2_translation:
-        st.error(
-            "IndicTrans2 translation is missing for this question."
-        )
-        st.stop()
-
-    if not bhashaverse_translation:
-        st.error(
-            "BhashaVerse translation is missing for this question."
         )
         st.stop()
 
@@ -1824,10 +1790,6 @@ elif st.session_state.page == "experiment":
         sample_id,
 
         telugu_text,
-
-        indictrans2_translation,
-
-        bhashaverse_translation,
 
         google_translation
     )
