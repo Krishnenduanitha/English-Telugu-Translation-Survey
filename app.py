@@ -1591,12 +1591,12 @@ elif st.session_state.page == "experiment":
     ).strip()
 
     audio_source = str(
-        row["Audio Path"]
+    row["Audio Path"]
     ).strip()
 
     audiofile = re.split(
-        r"[\/]",
-        audio_source
+    r"[\\/]",
+    audio_source
     )[-1]
 
     prosodic_feature = get_prosodic_feature(
