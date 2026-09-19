@@ -1262,235 +1262,271 @@ elif st.session_state.page == "participant_info":
         placeholder="Enter your name"
     )
 
-    age_range = st.radio(
-        "Age range",
-        [
-            "Below 18",
-            "18–24",
-            "25–34",
-            "35–44",
-            "45–54",
-            "55 or above"
-        ],
-        index=None
-    )
+    # ------------------------------------------------------------
+    # RESUME EXISTING PARTICIPANT
+    # ------------------------------------------------------------
+    # If this name already exists in Google Sheets, do not show
+    # the demographic questions again. The original metadata is
+    # restored from Google Sheets and cannot be overwritten.
+    existing_participant = False
 
-    native_language = st.text_input(
-        "Native language(s)"
-    )
+    if participant_name.strip():
+        existing_participant = participant_exists(
+            participant_name.strip()
+        )
 
-    english_proficiency = st.radio(
-        "English proficiency",
-        [
-            "Beginner",
-            "Intermediate",
-            "Advanced",
-            "Native / Near-native"
-        ],
-        index=None
-    )
+    if existing_participant:
 
-    telugu_proficiency = st.radio(
-        "Telugu proficiency",
-        [
-            "None",
-            "Beginner",
-            "Intermediate",
-            "Advanced",
-            "Native / Near-native"
-        ],
-        index=None
-    )
+        st.info(
+            "This participant already has saved progress. "
+            "Your previously entered participant information "
+            "will be used. You do not need to enter it again."
+        )
 
-    headphones = st.radio(
-        "Are you using headphones or earphones?",
-        [
-            "Yes",
-            "No"
-        ],
-        index=None
-    )
-
-    hearing_difficulties = st.radio(
-        "Do you have any difficulty hearing speech?",
-        [
-            "Yes",
-            "No",
-            "Prefer not to say"
-        ],
-        index=None
-    )
-
-    speech_experience = st.radio(
-        "Do you have previous experience with speech, "
-        "linguistics, audio, or related research?",
-        [
-            "Yes",
-            "No"
-        ],
-        index=None
-    )
-
-    prosody_understanding = st.radio(
-        "How familiar are you with the concept of prosody?",
-        [
-            "Not familiar",
-            "Slightly familiar",
-            "Moderately familiar",
-            "Very familiar"
-        ],
-        index=None
-    )
-
-    listening_test_experience = st.radio(
-        "Have you participated in a listening test before?",
-        [
-            "Yes",
-            "No"
-        ],
-        index=None
-    )
-
-    if st.button(
-        "Continue →",
-        type="primary",
-        use_container_width=True
-    ):
-
-        if not participant_name.strip():
-
-            st.warning(
-                "Please enter your name."
-            )
-
-        elif not age_range:
-
-            st.warning(
-                "Please select your age range."
-            )
-
-        elif not native_language.strip():
-
-            st.warning(
-                "Please enter your native language."
-            )
-
-        elif not english_proficiency:
-
-            st.warning(
-                "Please select your English proficiency."
-            )
-
-        elif not telugu_proficiency:
-
-            st.warning(
-                "Please select your Telugu proficiency."
-            )
-
-        elif not headphones:
-
-            st.warning(
-                "Please indicate whether you are using headphones or earphones."
-            )
-
-        elif not hearing_difficulties:
-
-            st.warning(
-                "Please answer the hearing-difficulty question."
-            )
-
-        elif not speech_experience:
-
-            st.warning(
-                "Please answer the speech/audio experience question."
-            )
-
-        elif not prosody_understanding:
-
-            st.warning(
-                "Please select your familiarity with prosody."
-            )
-
-        elif not listening_test_experience:
-
-            st.warning(
-                "Please answer the listening-test experience question."
-            )
-
-        else:
+        if st.button(
+            "Resume Study →",
+            type="primary",
+            use_container_width=True
+        ):
 
             st.session_state.participant_name = (
                 participant_name.strip()
             )
 
-            st.session_state.demographics = {
-
-                "age_range":
-                    age_range,
-
-                "native_language":
-                    native_language.strip(),
-
-                "english_proficiency":
-                    english_proficiency,
-
-                "telugu_proficiency":
-                    telugu_proficiency,
-
-                "headphones":
-                    headphones,
-
-                "hearing_difficulties":
-                    hearing_difficulties,
-
-                "speech_experience":
-                    speech_experience,
-
-                "prosody_understanding":
-                    prosody_understanding,
-
-                "listening_test_experience":
-                    listening_test_experience
-            }
-
             progress = load_participant_progress(
                 st.session_state.participant_name
             )
 
-            if participant_exists(
-                st.session_state.participant_name
+            # Restore the original demographic information.
+            # Newly entered/changed demographic values are ignored.
+            st.session_state.demographics = (
+                progress["demographics"]
+            )
+
+            st.session_state.answers = (
+                progress["answers"]
+            )
+
+            st.session_state.remarks = (
+                progress["remarks"]
+            )
+
+            st.session_state.current_question = (
+                progress["first_unanswered"]
+            )
+
+            if (
+                st.session_state.current_question
+                >= len(questions_df)
             ):
 
-                st.session_state.answers = (
-                    progress["answers"]
-                )
-
-                st.session_state.remarks = (
-                    progress["remarks"]
-                )
-
-                st.session_state.current_question = (
-                    progress["first_unanswered"]
-                )
-
-                if (
-                    st.session_state.current_question
-                    >= len(questions_df)
-                ):
-
-                    st.session_state.page = "completed"
-
-                else:
-
-                    st.session_state.page = "instructions"
+                st.session_state.page = "completed"
 
             else:
+
+                st.session_state.page = "instructions"
+
+            st.rerun()
+
+    else:
+
+        age_range = st.radio(
+            "Age range",
+            [
+                "Below 18",
+                "18–24",
+                "25–34",
+                "35–44",
+                "45–54",
+                "55 or above"
+            ],
+            index=None
+        )
+
+        native_language = st.text_input(
+            "Native language(s)"
+        )
+
+        english_proficiency = st.radio(
+            "English proficiency",
+            [
+                "Beginner",
+                "Intermediate",
+                "Advanced",
+                "Native / Near-native"
+            ],
+            index=None
+        )
+
+        telugu_proficiency = st.radio(
+            "Telugu proficiency",
+            [
+                "None",
+                "Beginner",
+                "Intermediate",
+                "Advanced",
+                "Native / Near-native"
+            ],
+            index=None
+        )
+
+        headphones = st.radio(
+            "Are you using headphones or earphones?",
+            [
+                "Yes",
+                "No"
+            ],
+            index=None
+        )
+
+        hearing_difficulties = st.radio(
+            "Do you have any difficulty hearing speech?",
+            [
+                "Yes",
+                "No",
+                "Prefer not to say"
+            ],
+            index=None
+        )
+
+        speech_experience = st.radio(
+            "Do you have previous experience with speech, "
+            "linguistics, audio, or related research?",
+            [
+                "Yes",
+                "No"
+            ],
+            index=None
+        )
+
+        prosody_understanding = st.radio(
+            "How familiar are you with the concept of prosody?",
+            [
+                "Not familiar",
+                "Slightly familiar",
+                "Moderately familiar",
+                "Very familiar"
+            ],
+            index=None
+        )
+
+        listening_test_experience = st.radio(
+            "Have you participated in a listening test before?",
+            [
+                "Yes",
+                "No"
+            ],
+            index=None
+        )
+
+        if st.button(
+            "Continue →",
+            type="primary",
+            use_container_width=True
+        ):
+
+            if not participant_name.strip():
+
+                st.warning(
+                    "Please enter your name."
+                )
+
+            elif not age_range:
+
+                st.warning(
+                    "Please select your age range."
+                )
+
+            elif not native_language.strip():
+
+                st.warning(
+                    "Please enter your native language."
+                )
+
+            elif not english_proficiency:
+
+                st.warning(
+                    "Please select your English proficiency."
+                )
+
+            elif not telugu_proficiency:
+
+                st.warning(
+                    "Please select your Telugu proficiency."
+                )
+
+            elif not headphones:
+
+                st.warning(
+                    "Please indicate whether you are using headphones or earphones."
+                )
+
+            elif not hearing_difficulties:
+
+                st.warning(
+                    "Please answer the hearing-difficulty question."
+                )
+
+            elif not speech_experience:
+
+                st.warning(
+                    "Please answer the speech/audio experience question."
+                )
+
+            elif not prosody_understanding:
+
+                st.warning(
+                    "Please select your familiarity with prosody."
+                )
+
+            elif not listening_test_experience:
+
+                st.warning(
+                    "Please answer the listening-test experience question."
+                )
+
+            else:
+
+                st.session_state.participant_name = (
+                    participant_name.strip()
+                )
+
+                st.session_state.demographics = {
+
+                    "age_range":
+                        age_range,
+
+                    "native_language":
+                        native_language.strip(),
+
+                    "english_proficiency":
+                        english_proficiency,
+
+                    "telugu_proficiency":
+                        telugu_proficiency,
+
+                    "headphones":
+                        headphones,
+
+                    "hearing_difficulties":
+                        hearing_difficulties,
+
+                    "speech_experience":
+                        speech_experience,
+
+                    "prosody_understanding":
+                        prosody_understanding,
+
+                    "listening_test_experience":
+                        listening_test_experience
+                }
 
                 st.session_state.current_question = 0
 
                 st.session_state.page = "instructions"
 
-            st.rerun()
+                st.rerun()
+
 
 
 # ============================================================
